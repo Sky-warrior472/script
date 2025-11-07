@@ -1,0 +1,170 @@
+-- // Fluxo Attach Notification + DISABLE ACHIEVEMENTS + GLOWING ICON
+--  • Hides achievements for 5 sec
+--  • Green icon glows & pulses (size + transparency)
+--  • Perfect alignment
+
+local TweenService = game:GetService("TweenService")
+local CoreGui      = game:GetService("CoreGui")
+local Players      = game:GetService("Players")
+
+local player = Players.LocalPlayer
+
+-- Remove old UI
+if CoreGui:FindFirstChild("FluxoAttachUI") then
+	CoreGui:FindFirstChild("FluxoAttachUI"):Destroy()
+end
+
+-- Create Fluxo UI
+local FluxoUI = Instance.new("ScreenGui")
+FluxoUI.Name = "FluxoAttachUI"
+FluxoUI.IgnoreGuiInset = true
+FluxoUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+FluxoUI.DisplayOrder = 9999
+FluxoUI.Parent = CoreGui
+
+-- Main Frame
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 360, 0, 90)
+Frame.AnchorPoint = Vector2.new(1, 1)
+Frame.Position = UDim2.new(1, 380, 1, -140)
+Frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+Frame.BackgroundTransparency = 1
+Frame.BorderSizePixel = 0
+Frame.Parent = FluxoUI
+
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 14)
+Corner.Parent = Frame
+
+local Gradient = Instance.new("UIGradient")
+Gradient.Color = ColorSequence.new{
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(35,35,35)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(20,20,20))
+}
+Gradient.Rotation = 45
+Gradient.Parent = Frame
+
+-- ICON FRAME
+local Icon = Instance.new("Frame")
+Icon.Size = UDim2.new(0, 48, 0, 48)
+Icon.Position = UDim2.new(0, 22, 0.5, -24)
+Icon.BackgroundColor3 = Color3.fromRGB(70, 255, 140)
+Icon.BackgroundTransparency = 1
+Icon.Parent = Frame
+
+local IconCorner = Instance.new("UICorner")
+IconCorner.CornerRadius = UDim.new(1, 0)
+IconCorner.Parent = Icon
+
+-- GLOW (Now Animated: Size + Transparency)
+local Glow = Instance.new("ImageLabel")
+Glow.Name = "Glow"
+Glow.BackgroundTransparency = 1
+Glow.Size = UDim2.new(0, 100, 0, 100)  -- Start size
+Glow.Position = UDim2.new(0.5, -50, 0.5, -50)
+Glow.Image = "rbxassetid://5028857084"
+Glow.ImageColor3 = Color3.fromRGB(70, 255, 140)
+Glow.ImageTransparency = 0.7
+Glow.ZIndex = 0
+Glow.Parent = Icon
+
+-- PULSING GLOW ANIMATION (Size + Opacity)
+task.spawn(function()
+	while Glow and Glow.Parent do
+		-- Expand + brighten
+		TweenService:Create(Glow, TweenInfo.new(1.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+			Size = UDim2.new(0, 130, 0, 130),
+			Position = UDim2.new(0.5, -65, 0.5, -65),
+			ImageTransparency = 0.3
+		}):Play()
+		task.wait(1.4)
+
+		-- Shrink + fade
+		TweenService:Create(Glow, TweenInfo.new(1.4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
+			Size = UDim2.new(0, 100, 0, 100),
+			Position = UDim2.new(0.5, -50, 0.5, -50),
+			ImageTransparency = 0.8
+		}):Play()
+		task.wait(1.4)
+	end
+end)
+
+-- Text
+local Title = Instance.new("TextLabel")
+Title.BackgroundTransparency = 1
+Title.Position = UDim2.new(0, 90, 0, 25)
+Title.Size = UDim2.new(1, -100, 0, 25)
+Title.Font = Enum.Font.GothamBold
+Title.Text = "Fluxo"
+Title.TextSize = 22
+Title.TextColor3 = Color3.fromRGB(255,255,255)
+Title.TextTransparency = 1
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = Frame
+
+local SubTitle = Instance.new("TextLabel")
+SubTitle.BackgroundTransparency = 1
+SubTitle.Position = UDim2.new(0, 90, 0, 50)
+SubTitle.Size = UDim2.new(1, -100, 0, 22)
+SubTitle.Font = Enum.Font.Gotham
+SubTitle.Text = "Attached Successfully!"
+SubTitle.TextSize = 16
+SubTitle.TextColor3 = Color3.fromRGB(180,180,180)
+SubTitle.TextTransparency = 1
+SubTitle.TextXAlignment = Enum.TextXAlignment.Left
+SubTitle.Parent = Frame
+
+-- DISABLE ACHIEVEMENTS FOR 5 SECONDS
+local function hideAchievements()
+	local robloxGui = CoreGui:FindFirstChild("RobloxGui")
+	if not robloxGui then return end
+	local notifications = robloxGui:FindFirstChild("Notifications")
+	if not notifications then return end
+	for _, child in notifications:GetChildren() do
+		if child:IsA("Frame") and child:FindFirstChild("Icon") and child.Size.Y.Offset == 90 then
+			child.Visible = false
+		end
+	end
+end
+
+local function showAchievements()
+	local robloxGui = CoreGui:FindFirstChild("RobloxGui")
+	if not robloxGui then return end
+	local notifications = robloxGui:FindFirstChild("Notifications")
+	if not notifications then return end
+	for _, child in notifications:GetChildren() do
+		if child:IsA("Frame") and child:FindFirstChild("Icon") and child.Size.Y.Offset == 90 then
+			child.Visible = true
+		end
+	end
+end
+
+hideAchievements()
+task.delay(5, showAchievements)
+
+-- APPEAR ANIMATION
+local appear = TweenService:Create(Frame, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+	Position = UDim2.new(1, -25, 1, -140)
+})
+appear:Play()
+
+TweenService:Create(Frame, TweenInfo.new(0.4), {BackgroundTransparency = 0.1}):Play()
+TweenService:Create(Icon, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
+TweenService:Create(Title, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
+TweenService:Create(SubTitle, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+
+task.wait(0.4)
+TweenService:Create(Frame, TweenInfo.new(0.25, Enum.EasingStyle.Back), {
+	Position = UDim2.new(1, -20, 1, -135)
+}):Play()
+
+-- FADE OUT AFTER 5 SECONDS
+task.delay(5, function()
+	local fade = TweenService:Create(Frame, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {
+		Position = UDim2.new(1, 380, 1, -140),
+		BackgroundTransparency = 1
+	})
+	fade:Play()
+	fade.Completed:Wait()
+	FluxoUI:Destroy()
+end)
