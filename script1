@@ -1,0 +1,24 @@
+-- // Hide notifications for 5 seconds
+local StarterGui = game:GetService("StarterGui")
+
+-- Backup original function
+local oldSetCore = StarterGui.SetCore
+
+-- Override SetCore to block notifications
+StarterGui.SetCore = function(self, core, data)
+    if core == "SendNotification" then
+        -- Block all notifications during this period
+        return
+    end
+    -- Pass through other SetCore calls
+    return oldSetCore(self, core, data)
+end
+
+-- Wait 5 seconds
+task.wait(5)
+
+-- Restore original function
+StarterGui.SetCore = oldSetCore
+
+-- Optional print message
+print("[FluxoAPI] Notifications were disabled for 5 seconds.")
